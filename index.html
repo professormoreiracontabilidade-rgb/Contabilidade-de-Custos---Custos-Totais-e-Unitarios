@@ -12,7 +12,7 @@
 }
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background: linear-gradient(135deg, #0f172a, #1e3a8a);
+    background: linear-gradient(135deg, #0f172a, #0b2f6b);
     color: #111827;
     overflow: hidden;
 }
@@ -25,7 +25,7 @@ body {
 }
 .header {
     height: 58px;
-    background: linear-gradient(90deg, #0f172a, #1e3a8a);
+    background: linear-gradient(90deg, #0f172a, #0b2f6b);
     color: white;
     border: 2px solid #facc15;
     border-radius: 14px;
@@ -62,7 +62,7 @@ body {
     box-shadow: 0 10px 28px rgba(0,0,0,.25);
 }
 .questionTop {
-    background: #1e3a8a;
+    background: #0b2f6b;
     color: white;
     padding: 10px 16px;
     display: flex;
@@ -128,12 +128,12 @@ button {
     font-size: 15px;
     box-shadow: 0 4px 10px rgba(0,0,0,.16);
 }
-.navBtn { background:#1e3a8a; color:white; }
+.navBtn { background:#0b2f6b; color:white; }
 .answerBtn { background:#16a34a; color:white; }
 .resetBtn { background:#dc2626; color:white; }
 .wacom {
     background: #dbeafe;
-    border: 4px solid #1d4ed8;
+    border: 4px solid #0b2f6b;
     border-radius: 18px;
     position: relative;
     overflow: hidden;
@@ -161,16 +161,18 @@ button {
     border-bottom: 2px solid #cbd5e1;
 }
 .tool {
-    padding: 8px 10px;
+    padding: 7px 8px;
     border-radius: 9px;
-    font-size: 13px;
+    font-size: 12px;
 }
-.blue { background:#2563eb; color:white; }
+.blue { background:#0a3d91; color:white; }
 .red { background:#dc2626; color:white; }
 .black { background:#111827; color:white; }
 .yellow { background:#facc15; color:#111827; }
 .eraser { background:#e5e7eb; color:#111827; }
 .clear { background:#7c2d12; color:white; }
+.toolbar .navBtn { background:#0b2f6b; color:white; }
+.size { background:#e0f2fe; color:#0b2f6b; border:1px solid #0b2f6b; }
 .boardWrap {
     flex: 1;
     position: relative;
@@ -180,12 +182,44 @@ button {
     border-radius: 8px;
     overflow: hidden;
 }
+.boardWrap.guideH::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 37px,
+        rgba(11, 47, 107, 0.22) 38px,
+        transparent 39px
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+.boardWrap.guideV::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+        to right,
+        transparent 0px,
+        transparent 47px,
+        rgba(11, 47, 107, 0.18) 48px,
+        transparent 49px
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+.boardWrap canvas {
+    position: relative;
+    z-index: 2;
+}
 canvas {
     width: 100%;
     height: 100%;
     background: #ffffff;
     display: block;
-    cursor: crosshair;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 28 28"><path d="M4 24 L8 16 L20 4 L24 8 L12 20 Z" fill="%230b2f6b" stroke="black" stroke-width="1"/><circle cx="6" cy="22" r="2" fill="black"/></svg>') 3 24, crosshair;
     touch-action: none;
 }
 .rulerH {
@@ -274,11 +308,16 @@ canvas {
                 <div>Lousa em branco</div>
             </div>
             <div class="toolbar">
-                <button class="tool blue" onclick="setTool('#2563eb',4,'source-over')">Azul</button>
-                <button class="tool red" onclick="setTool('#dc2626',4,'source-over')">Vermelha</button>
-                <button class="tool black" onclick="setTool('#111827',4,'source-over')">Preta</button>
-                <button class="tool yellow" onclick="setTool('rgba(250,204,21,.45)',18,'source-over')">Marca-texto</button>
-                <button class="tool eraser" onclick="setTool('#ffffff',24,'destination-out')">Borracha</button>
+                <button class="tool blue" onclick="setPen('#0a3d91')">Caneta azul</button>
+                <button class="tool red" onclick="setPen('#dc2626')">Caneta vermelha</button>
+                <button class="tool black" onclick="setPen('#111827')">Caneta preta</button>
+                <button class="tool size" onclick="setSize(2)">Fina</button>
+                <button class="tool size" onclick="setSize(4)">Média</button>
+                <button class="tool size" onclick="setSize(7)">Grossa</button>
+                <button class="tool yellow" onclick="setMarker()">Marca-texto</button>
+                <button class="tool eraser" onclick="setEraser()">Borracha</button>
+                <button class="tool navBtn" onclick="setLineMode('horizontal')">Linha H reta</button>
+                <button class="tool navBtn" onclick="setLineMode('vertical')">Linha V reta</button>
                 <button class="tool clear" onclick="clearBoard()">Limpar lousa</button>
             </div>
             <div class="rulerH">Régua H</div>
@@ -340,8 +379,10 @@ const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 let drawing = false;
 let penColor = '#111827';
-let penSize = 4;
+let penSize = 2;
 let composite = 'source-over';
+let mode = 'pen';
+let lineStart = null;
 
 function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
@@ -370,10 +411,21 @@ function getPos(e) {
     };
 }
 
+let lastPoint = null;
+let currentPoint = null;
+
 function startDraw(e) {
     e.preventDefault();
     drawing = true;
     const pos = getPos(e);
+
+    if (mode === 'lineH' || mode === 'lineV') {
+        lineStart = pos;
+        return;
+    }
+
+    lastPoint = pos;
+    currentPoint = pos;
     ctx.beginPath();
     ctx.moveTo(pos.x, pos.y);
 }
@@ -381,16 +433,66 @@ function startDraw(e) {
 function draw(e) {
     if (!drawing) return;
     e.preventDefault();
+
+    if (mode === 'lineH' || mode === 'lineV') {
+        return; // a linha reta será desenhada somente ao soltar
+    }
+
     const pos = getPos(e);
+
+    // Suavização mais firme: escrita menos tremida e sem engrossar demais.
+    const smooth = {
+        x: currentPoint.x * 0.78 + pos.x * 0.22,
+        y: currentPoint.y * 0.78 + pos.y * 0.22
+    };
+
+    const midPoint = {
+        x: (lastPoint.x + smooth.x) / 2,
+        y: (lastPoint.y + smooth.y) / 2
+    };
+
     ctx.globalCompositeOperation = composite;
     ctx.strokeStyle = penColor;
     ctx.lineWidth = penSize;
-    ctx.lineTo(pos.x, pos.y);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, midPoint.x, midPoint.y);
     ctx.stroke();
+
+    lastPoint = smooth;
+    currentPoint = smooth;
 }
 
 function endDraw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+
+    if ((mode === 'lineH' || mode === 'lineV') && lineStart) {
+        const pos = getPos(e.changedTouches ? { touches: [e.changedTouches[0]] } : e);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = penColor;
+        ctx.lineWidth = Math.max(1.5, penSize);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+
+        if (mode === 'lineH') {
+            ctx.moveTo(lineStart.x, lineStart.y);
+            ctx.lineTo(pos.x, lineStart.y); // horizontal perfeita
+        } else {
+            ctx.moveTo(lineStart.x, lineStart.y);
+            ctx.lineTo(lineStart.x, pos.y); // vertical perfeita
+        }
+
+        ctx.stroke();
+        mode = 'pen';
+        lineStart = null;
+    }
+
     drawing = false;
+    lastPoint = null;
+    currentPoint = null;
 }
 
 canvas.addEventListener('mousedown', startDraw);
@@ -401,16 +503,55 @@ canvas.addEventListener('touchstart', startDraw, {passive:false});
 canvas.addEventListener('touchmove', draw, {passive:false});
 canvas.addEventListener('touchend', endDraw);
 
-function setTool(color, size, mode) {
+function setTool(color, size, drawMode) {
     penColor = color;
     penSize = size;
-    composite = mode;
+    composite = drawMode;
+    mode = 'pen';
+}
+
+function setPen(color) {
+    penColor = color;
+    composite = 'source-over';
+    mode = 'pen';
+}
+
+function setSize(size) {
+    penSize = size;
+    mode = 'pen';
+}
+
+function setMarker() {
+    penColor = 'rgba(250,204,21,.35)';
+    penSize = 14;
+    composite = 'source-over';
+    mode = 'pen';
+}
+
+function setEraser() {
+    penColor = '#ffffff';
+    penSize = 18;
+    composite = 'destination-out';
+    mode = 'pen';
+}
+
+function setLineMode(direction) {
+    composite = 'source-over';
+    mode = direction === 'horizontal' ? 'lineH' : 'lineV';
 }
 
 function clearBoard() {
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function toggleGuideH() {
+    document.querySelector('.boardWrap').classList.toggle('guideH');
+}
+
+function toggleGuideV() {
+    document.querySelector('.boardWrap').classList.toggle('guideV');
 }
 
 renderQuestion();
