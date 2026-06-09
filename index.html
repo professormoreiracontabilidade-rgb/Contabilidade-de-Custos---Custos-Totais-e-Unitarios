@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curso de Contabilidade Professor Moreira - Custos de Produção</title>
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e3a8a);
+    color: #111827;
+    overflow: hidden;
+}
+.app {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+.header {
+    height: 58px;
+    background: linear-gradient(90deg, #0f172a, #1e3a8a);
+    color: white;
+    border: 2px solid #facc15;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.25);
+}
+.header h1 {
+    font-size: 20px;
+    font-weight: 800;
+}
+.header span {
+    font-size: 14px;
+    color: #fde68a;
+    font-weight: 700;
+}
+.main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 48% 52%;
+    gap: 10px;
+    margin-top: 10px;
+    min-height: 0;
+}
+.left {
+    background: #fff7ed;
+    border: 4px solid #f59e0b;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(0,0,0,.25);
+}
+.questionTop {
+    background: #1e3a8a;
+    color: white;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.badge {
+    background: #facc15;
+    color: #111827;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 900;
+}
+.content {
+    padding: 16px;
+    overflow-y: auto;
+    font-size: 18px;
+    line-height: 1.42;
+}
+.statement {
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+.alt {
+    background: white;
+    border: 2px solid #e5e7eb;
+    padding: 9px 11px;
+    border-radius: 10px;
+    margin: 8px 0;
+    font-weight: 800;
+}
+.answerBox {
+    background: #dcfce7;
+    border: 3px solid #16a34a;
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: 14px;
+    font-size: 18px;
+    display: none;
+}
+.answerBox.show {
+    display: block;
+}
+.answerBox h3 {
+    color: #14532d;
+    margin-bottom: 8px;
+}
+.controls {
+    background: #f8fafc;
+    border-top: 2px solid #e5e7eb;
+    padding: 10px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-weight: 900;
+    cursor: pointer;
+    font-size: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.16);
+}
+.navBtn { background:#1e3a8a; color:white; }
+.answerBtn { background:#16a34a; color:white; }
+.resetBtn { background:#dc2626; color:white; }
+.wacom {
+    background: #dbeafe;
+    border: 4px solid #1d4ed8;
+    border-radius: 18px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(0,0,0,.25);
+    display: flex;
+    flex-direction: column;
+}
+.wacomHeader {
+    height: 44px;
+    background: linear-gradient(90deg,#111827,#374151);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    font-weight: 900;
+}
+.toolbar {
+    height: 54px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-bottom: 2px solid #cbd5e1;
+}
+.tool {
+    padding: 8px 10px;
+    border-radius: 9px;
+    font-size: 13px;
+}
+.blue { background:#2563eb; color:white; }
+.red { background:#dc2626; color:white; }
+.black { background:#111827; color:white; }
+.yellow { background:#facc15; color:#111827; }
+.eraser { background:#e5e7eb; color:#111827; }
+.clear { background:#7c2d12; color:white; }
+.boardWrap {
+    flex: 1;
+    position: relative;
+    background: #ffffff;
+    margin: 18px 18px 18px 42px;
+    border: 3px solid #111827;
+    border-radius: 8px;
+    overflow: hidden;
+}
+canvas {
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    display: block;
+    cursor: crosshair;
+    touch-action: none;
+}
+.rulerH {
+    position: absolute;
+    left: 42px;
+    right: 18px;
+    top: 94px;
+    height: 22px;
+    background: repeating-linear-gradient(90deg,#fef3c7 0,#fef3c7 9px,#92400e 10px);
+    border: 2px solid #92400e;
+    z-index: 5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:900;
+    color:#78350f;
+    font-size:12px;
+}
+.rulerV {
+    position: absolute;
+    left: 18px;
+    top: 94px;
+    bottom: 18px;
+    width: 22px;
+    background: repeating-linear-gradient(180deg,#fef3c7 0,#fef3c7 9px,#92400e 10px);
+    border: 2px solid #92400e;
+    z-index: 5;
+    writing-mode: vertical-rl;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:900;
+    color:#78350f;
+    font-size:12px;
+}
+.footer {
+    height: 28px;
+    color: #e0f2fe;
+    font-size: 13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+}
+@media (max-width: 900px) {
+    body { overflow:auto; }
+    .app { height:auto; min-height:100vh; }
+    .main { grid-template-columns: 1fr; }
+    .left, .wacom { min-height: 520px; }
+    .header h1 { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Curso de Contabilidade Professor Moreira</h1>
+        <span>Contabilidade de Custos • Custo Total e Custo Unitário</span>
+    </div>
+
+    <div class="main">
+        <section class="left">
+            <div class="questionTop">
+                <div class="badge" id="questionBadge">Questão 1</div>
+                <div id="progressText">1 / 10</div>
+            </div>
+            <div class="content">
+                <div class="statement" id="statement"></div>
+                <div id="alternatives"></div>
+                <div class="answerBox" id="answerBox">
+                    <h3 id="answerTitle"></h3>
+                    <p id="answerExplanation"></p>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="navBtn" onclick="prevQuestion()">⬅ Voltar</button>
+                <button class="answerBtn" onclick="toggleAnswer()">Ver resposta</button>
+                <button class="navBtn" onclick="nextQuestion()">Avançar ➡</button>
+                <button class="resetBtn" onclick="restart()">Reiniciar</button>
+            </div>
+        </section>
+
+        <section class="wacom">
+            <div class="wacomHeader">
+                <div>Mesa Wacom</div>
+                <div>Lousa em branco</div>
+            </div>
+            <div class="toolbar">
+                <button class="tool blue" onclick="setTool('#2563eb',4,'source-over')">Azul</button>
+                <button class="tool red" onclick="setTool('#dc2626',4,'source-over')">Vermelha</button>
+                <button class="tool black" onclick="setTool('#111827',4,'source-over')">Preta</button>
+                <button class="tool yellow" onclick="setTool('rgba(250,204,21,.45)',18,'source-over')">Marca-texto</button>
+                <button class="tool eraser" onclick="setTool('#ffffff',24,'destination-out')">Borracha</button>
+                <button class="tool clear" onclick="clearBoard()">Limpar lousa</button>
+            </div>
+            <div class="rulerH">Régua H</div>
+            <div class="rulerV">Régua V</div>
+            <div class="boardWrap">
+                <canvas id="board"></canvas>
+            </div>
+        </section>
+    </div>
+    <div class="footer">Professor Moreira • WhatsApp: (61) 98532-3574</div>
+</div>
+
+<script>
+const questions = [{'q': 'A Indústria de Calçados Couro Fino Ltda., em determinado período, iniciou a produção de um novo lote de botas. Para tanto, consumiu R$ 50.000$ em matéria-prima, aplicou R$ 30.000$ em Mão de Obra Direta (MOD) e alocou R$ 20.000$ em Custos Indiretos de Fabricação (CIF). No mesmo período, a empresa incorreu em R$ 15.000$ com comissões de vendedores e fretes de entrega. Foram integralmente produzidas 2.000 unidades, das quais 1.500 foram vendidas. Com base exclusivamente nessas informações, assinale a opção que apresenta, respectivamente, o Custo Total da Produção do período e o Custo Unitário do produto.', 'alts': ['A) R$ 115.000$ e R$ 57,50$', 'B) R$ 100.000$ e R$ 50,00$', 'C) R$ 100.000$ e R$ 66,67$', 'D) R$ 75.000$ e R$ 50,00$'], 'ans': 'B', 'exp': 'Custo Total de Produção = MP + MOD + CIF = 50.000 + 30.000 + 20.000 = R$ 100.000. Despesas comerciais não entram no custo de produção. Custo Unitário = 100.000 ÷ 2.000 = R$ 50,00.'}, {'q': 'A Cia. Metalúrgica Força Pura fabrica componentes automotivos. Em abril, a empresa apresentou os seguintes gastos: matéria-prima de R$ 120.000$, MOD de R$ 80.000$ e CIF de R$ 40.000$. O departamento administrativo central consumiu R$ 25.000$ com materiais de escritório e honorários da diretoria. O relatório do estoque indicou que foram finalizadas 5.000 peças no mês e 4.200 foram comercializadas. Diante do exposto, o Custo Total de Produção e o Custo Unitário do componente são, respectivamente:', 'alts': ['A) R$ 240.000$ e R$ 48,00$', 'B) R$ 265.000$ e R$ 53,00$', 'C) R$ 240.000$ e R$ 57,14$', 'D) R$ 201.600$ e R$ 48,00$'], 'ans': 'A', 'exp': 'Custo Total de Produção = 120.000 + 80.000 + 40.000 = R$ 240.000. Gastos administrativos são despesas. Custo Unitário = 240.000 ÷ 5.000 = R$ 48,00.'}, {'q': 'A Doceria Delícia Caseira S.A. produz ovos de Páscoa artesanais. Para o lote de abril, os registros apontaram R$ 15.000$ em chocolate e embalagens (matéria-prima), R$ 10.000$ em salários dos confeiteiros (MOD) e R$ 5.000$ de depreciação e energia da fábrica (CIF). Adicionalmente, a empresa gastou R$ 8.000$ com publicidade e propaganda nas redes sociais para divulgar a marca. Sabendo que a empresa produziu 1.000 ovos e vendeu 800 unidades, assinale a alternativa correta para o Custo Total e Custo Unitário de produção.', 'alts': ['A) R$ 38.000$ e R$ 38,00$', 'B) R$ 30.000$ e R$ 37,50$', 'C) R$ 24.000$ e R$ 30,00$', 'D) R$ 30.000$ e R$ 30,00$'], 'ans': 'D', 'exp': 'Custo Total de Produção = 15.000 + 10.000 + 5.000 = R$ 30.000. Publicidade é despesa. Custo Unitário = 30.000 ÷ 1.000 = R$ 30,00.'}, {'q': 'Determinada Indústria Têxtil Fio de Ouro Ltda. incorreu em R$ 90.000$ de matéria-prima consumida, R$ 45.000$ de mão de obra direta e R$ 15.000$ de custos indiretos. Simultaneamente, registrou R$ 12.000$ referentes a juros e encargos sobre empréstimos bancários (despesas financeiras). Ao final do mês, o relatório técnico indicou 3.000 camisas produzidas e 1.200 camisas estocadas no almoxarifado de produtos acabados. Assinale a opção que indica o Custo Total e o Custo Unitário das camisas, respectivamente.', 'alts': ['A) R$ 150.000$ e R$ 83,33$', 'B) R$ 162.000$ e R$ 54,00$', 'C) R$ 150.000$ e R$ 50,00$', 'D) R$ 90.000$ e R$ 50,00$'], 'ans': 'C', 'exp': 'Custo Total de Produção = 90.000 + 45.000 + 15.000 = R$ 150.000. Juros são despesas financeiras. Custo Unitário = 150.000 ÷ 3.000 = R$ 50,00.'}, {'q': 'A fábrica de móveis Estilo Real S.A. processou um lote de mesas de jantar e registrou os seguintes dados: Matéria-prima: R$ 200.000$; MOD: R$ 100.000$; CIF: R$ 60.000$. Paralelamente, incorreu em R$ 18.000$ com o aluguel do showroom de vendas e R$ 7.000$ com material de consumo da administração geral. Foram concluídas 400 mesas, e a equipe comercial vendeu 350 delas. O Custo Total da Produção e o Custo Unitário de cada mesa totalizam, respectivamente:', 'alts': ['A) R$ 360.000$ e R$ 1.028,57$', 'B) R$ 315.000$ e R$ 900,00$', 'C) R$ 385.000$ e R$ 962,50$', 'D) R$ 360.000$ e R$ 900,00$'], 'ans': 'D', 'exp': 'Custo Total de Produção = 200.000 + 100.000 + 60.000 = R$ 360.000. Showroom e administração são despesas. Custo Unitário = 360.000 ÷ 400 = R$ 900,00.'}, {'q': 'A Indústria Química Reação Certa Ltda. informou que em maio gastou R$ 350.000$ com insumos químicos básicos, R$ 150.000$ com salários do pessoal do laboratório e operação da fábrica e R$ 100.000$ com despesas de depreciação de maquinários industriais. Fora da fábrica, o departamento de Recursos Humanos corporativo teve despesas com pessoal de R$ 30.000$. O volume de produção finalizado foi de 10.000 galões, sendo que 9.000 galões foram vendidos. Indique os valores corretos de Custo Total de Produção e Custo Unitário.', 'alts': ['A) R$ 600.000$ e R$ 60,00$', 'B) R$ 630.000$ e R$ 63,00$', 'C) R$ 600.000$ e R$ 66,67$', 'D) R$ 540.000$ e R$ 60,00$'], 'ans': 'A', 'exp': 'Custo Total de Produção = 350.000 + 150.000 + 100.000 = R$ 600.000. RH corporativo é despesa administrativa. Custo Unitário = 600.000 ÷ 10.000 = R$ 60,00.'}, {'q': 'A empresa de Brinquedos Alegria S.A. gastou no trimestre R$ 80.000$ com matérias-primas plásticas, R$ 40.000$ com mão de obra de montagem e R$ 30.000$ com aluguel e seguros do galpão fabril. No encerramento das demonstrações, registrou também R$ 14.000$ relativos a honorários advocatícios judiciais da assessoria jurídica da sede. Foram produzidas 5.000 unidades de um carrinho eletrônico e 3.500 unidades foram vendidas. Determine o Custo Total de Produção e o Custo Unitário do carrinho.', 'alts': ['A) R$ 164.000$ e R$ 32,80$', 'B) R$ 150.000$ e R$ 30,00$', 'C) R$ 150.000$ e R$ 42,86$', 'D) R$ 105.000$ e R$ 30,00$'], 'ans': 'B', 'exp': 'Custo Total de Produção = 80.000 + 40.000 + 30.000 = R$ 150.000. Honorários jurídicos da sede são despesas. Custo Unitário = 150.000 ÷ 5.000 = R$ 30,00.'}, {'q': 'Uma editora e gráfica rápida, a Impressão Digital S.A., produziu um lote especial de apostilas para concursos. Gastou R$ 14.000$ em papel e tintas, R$ 8.000$ com os operadores de prensas e R$ 3.000$ com energia e manutenção da gráfica (CIF). Paralelamente, o setor de marketing despendeu R$ 6.000$ em campanhas promocionais. Foram impressas 500 apostilas e restaram 100 unidades no estoque final de produtos acabados. O Custo Total de Produção e o Custo Unitário das apostilas são, respectivamente:', 'alts': ['A) R$ 31.000$ e R$ 62,00$', 'B) R$ 25.000$ e R$ 62,50$', 'C) R$ 25.000$ e R$ 50,00$', 'D) R$ 20.000$ e R$ 50,00$'], 'ans': 'C', 'exp': 'Custo Total de Produção = 14.000 + 8.000 + 3.000 = R$ 25.000. Marketing é despesa. Custo Unitário = 25.000 ÷ 500 = R$ 50,00.'}, {'q': 'A Indústria de Alimentos Conservas do Vale S.A. produziu um lote de geleias de morango com os seguintes gastos: Matéria-prima de R$ 42.000$; MOD de R$ 18.000$; CIF de R$ 10.000$. Foram identificados, no mesmo período, R$ 5.000$ de despesas com depreciação dos computadores da sede administrativa e despesas com o telefone comercial. No total, foram envasados 10.000 potes de geleia e a comercialização atingiu 8.500 potes. Diante disso, o Custo Total de Produção e o Custo Unitário são, respectivamente:', 'alts': ['A) R$ 70.000$ e R$ 8,24$', 'B) R$ 75.000$ e R$ 7,50$', 'C) R$ 59.500$ e R$ 7,00$', 'D) R$ 70.000$ e R$ 7,00$'], 'ans': 'D', 'exp': 'Custo Total de Produção = 42.000 + 18.000 + 10.000 = R$ 70.000. Despesas da sede e telefone comercial não entram no custo de produção. Custo Unitário = 70.000 ÷ 10.000 = R$ 7,00.'}, {'q': 'A Metalúrgica Soluções de Aço Ltda. fabricou vigas sob medida para construção civil. Registrou os seguintes gastos no mês de junho: chapas de aço e insumos básicos por R$ 60.000$, salários e encargos diretos da fábrica por R$ 30.000$, e custos industriais indiretos por R$ 15.000$. Adicionalmente, computou R$ 9.000$ de tributos sobre o lucro e despesas com o faturamento do escritório comercial. Foram produzidas 150 vigas e vendidas 120 delas. O Custo Total da Produção e o Custo Unitário de cada viga equivalem a:', 'alts': ['A) R$ 105.000$ e R$ 700,00$', 'B) R$ 114.000$ e R$ 760,00$', 'C) R$ 105.000$ e R$ 875,00$', 'D) R$ 84.000$ e R$ 700,00$'], 'ans': 'A', 'exp': 'Custo Total de Produção = 60.000 + 30.000 + 15.000 = R$ 105.000. Tributos sobre o lucro e despesas comerciais não entram no custo de produção. Custo Unitário = 105.000 ÷ 150 = R$ 700,00.'}];
+
+let current = 0;
+let answerVisible = false;
+
+function renderQuestion() {
+    const item = questions[current];
+    document.getElementById('questionBadge').textContent = 'Questão ' + (current + 1);
+    document.getElementById('progressText').textContent = (current + 1) + ' / ' + questions.length;
+    document.getElementById('statement').textContent = item.q;
+    document.getElementById('alternatives').innerHTML = item.alts.map(a => '<div class="alt">' + a + '</div>').join('');
+    document.getElementById('answerTitle').textContent = 'Gabarito: letra ' + item.ans;
+    document.getElementById('answerExplanation').textContent = item.exp;
+    answerVisible = false;
+    document.getElementById('answerBox').classList.remove('show');
+}
+
+function toggleAnswer() {
+    answerVisible = !answerVisible;
+    document.getElementById('answerBox').classList.toggle('show', answerVisible);
+}
+
+function nextQuestion() {
+    if (current < questions.length - 1) {
+        current++;
+        renderQuestion();
+        clearBoard();
+    }
+}
+
+function prevQuestion() {
+    if (current > 0) {
+        current--;
+        renderQuestion();
+        clearBoard();
+    }
+}
+
+function restart() {
+    current = 0;
+    renderQuestion();
+    clearBoard();
+}
+
+const canvas = document.getElementById('board');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+let penColor = '#111827';
+let penSize = 4;
+let composite = 'source-over';
+
+function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const old = document.createElement('canvas');
+    old.width = canvas.width;
+    old.height = canvas.height;
+    old.getContext('2d').drawImage(canvas, 0, 0);
+    canvas.width = Math.max(1, Math.floor(rect.width));
+    canvas.height = Math.max(1, Math.floor(rect.height));
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (old.width && old.height) ctx.drawImage(old, 0, 0, canvas.width, canvas.height);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+}
+
+window.addEventListener('resize', resizeCanvas);
+setTimeout(resizeCanvas, 100);
+
+function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const p = e.touches ? e.touches[0] : e;
+    return {
+        x: (p.clientX - rect.left) * (canvas.width / rect.width),
+        y: (p.clientY - rect.top) * (canvas.height / rect.height)
+    };
+}
+
+function startDraw(e) {
+    e.preventDefault();
+    drawing = true;
+    const pos = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+}
+
+function draw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    ctx.globalCompositeOperation = composite;
+    ctx.strokeStyle = penColor;
+    ctx.lineWidth = penSize;
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+}
+
+function endDraw(e) {
+    drawing = false;
+}
+
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', endDraw);
+canvas.addEventListener('mouseleave', endDraw);
+canvas.addEventListener('touchstart', startDraw, {passive:false});
+canvas.addEventListener('touchmove', draw, {passive:false});
+canvas.addEventListener('touchend', endDraw);
+
+function setTool(color, size, mode) {
+    penColor = color;
+    penSize = size;
+    composite = mode;
+}
+
+function clearBoard() {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
